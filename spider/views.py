@@ -11,7 +11,7 @@ import simplejson as json
 def index(request):
 	context = RequestContext(request)
 	context_dict = {}
-	return render_to_response('spider/index.html',context_dict,context)
+	return render_to_response('spider/rindex.html',context_dict,context)
 
 #WEB端获取数据
 def GetWebData(request):

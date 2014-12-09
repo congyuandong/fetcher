@@ -21,9 +21,6 @@ function loadPage(){
 }
 
 function dwr_postei() {
-	
-	
-	
 	var searchWord1 = document.getElementById("searchWord1").value.trim();
 	if (searchWord1 == "" || searchWord1 == null) {
 		$('#searchWord1').popover('show');
@@ -48,7 +45,7 @@ function dwr_postei() {
 	runbar = 1;
 	barpro = 0;
 	run();
-	$.get("/f/web/", {
+	/*$.get("http://222.27.253.41:9090/f/web/", {
 			'title': searchWord1
 		},
 		function(data, status) {
@@ -68,8 +65,35 @@ function dwr_postei() {
 				runbar = 0;
 				document.getElementById("detail_load").innerHTML = '未检索到数据，您的文章还未被收了哦';
 			}
-		});
-
+		});*/
+	$.ajax({
+		url:'http://222.27.253.41:9090/f/web/?title='+searchWord1,
+		type:'GET',
+		dataType:'JSONP',
+		success:function(data){
+			alert(data);
+			if(data.status == 1){
+				detail_load.style.display = 'block';
+				progressbar.style.display = 'none';
+						// $('#btn_search').attr('disabled', false);
+						// $('#btn_search').text("Search");
+				unbar = 0;
+				document.getElementById("detail_load").innerHTML = data.body;
+				checkSearchTimes();
+			}else {
+				detail_load.style.display = 'block';
+				progressbar.style.display = 'none';
+				// $('#btn_search').attr('disabled', false);
+				// $('#btn_search').text("Search");
+				runbar = 0;
+				document.getElementById("detail_load").innerHTML = '未检索到数据，您的文章还未被收了哦';
+			}
+		},
+		error:function(e){
+			alert('error');
+			console.log(e); 
+		}
+	});
 }
 
 function btn_disable() {
