@@ -1,7 +1,6 @@
 #coding:UTF-8
 import urllib2,cookielib,urllib
 import urlparse
-from bs4 import BeautifulSoup
 import re
 
 def findByTitle(title):
