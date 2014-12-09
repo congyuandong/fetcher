@@ -1,7 +1,12 @@
 #coding:UTF-8
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+from bs4 import BeautifulSoup
 import urllib2,cookielib,urllib
 import urlparse
 import re
+
 
 def findByTitle(title):
 
@@ -30,12 +35,8 @@ def findByTitle(title):
 	opener.addheaders = header
 	
 	#第一次请求，获取cookie
+	print '开始第一次get'
 	opener.open(URL)
-
-	#print f.read()
-
-	#for ind, cookie in enumerate(cj):
-	#	print "%d - %s" % (ind, cookie)
 
 	print '已经进行完第一次get，获取cookie'
 
@@ -86,14 +87,14 @@ def findByTitle(title):
 	params = urlparse.parse_qs(parsedURL.query,True)
 	SEARCHID = params['SEARCHID'][0]
 	print SEARCHID
+	return SEARCHID
 	
-	
-	return parseHTML(SEARCHID)
+	#return parseHTML(SEARCHID)
 
 	
 
-def parseHTML(SEARCHID):
-
+def webHTML(title):
+	SEARCHID = findByTitle(title)
 	#获取第一篇的detail
 	#获取最后结果
 	URL = 'http://www.engineeringvillage.com/search/doc/detailed.url?SEARCHID='+SEARCHID+'&pageType=quickSearch&CID=quickSearchDetailedFormat&DOCINDEX=1&database=1&format=quickSearchDetailedFormat&tagscope=&displayPagination=yes'
@@ -103,6 +104,8 @@ def parseHTML(SEARCHID):
 	end_str = '</table>'
 
 	start = html_doc.find(start_str)
+	if start == -1:
+		return -1
 	#trs = table.findAll('tr')
 	html_doc = html_doc[start:len(html_doc)]
 	html_doc = html_doc[0:html_doc.find(end_str)+8]
@@ -114,5 +117,44 @@ def parseHTML(SEARCHID):
 	html_doc = p.sub('',html_doc)
 
 	return html_doc
-	#for tr in trs:
-	#	print tr
+
+def appHTML(title):
+	SEARCHID = findByTitle(title)
+	URL = 'http://www.engineeringvillage.com/search/doc/detailed.url?SEARCHID='+SEARCHID+'&pageType=quickSearch&CID=quickSearchDetailedFormat&DOCINDEX=1&database=1&format=quickSearchDetailedFormat&tagscope=&displayPagination=yes'
+	html_doc = urllib2.urlopen(URL).read()
+
+	start_str = '''<table border="0" width="100%" id="detailed">'''
+	start = html_doc.find(start_str)
+	if start == -1:
+		return -1
+
+	soup = BeautifulSoup(html_doc)
+
+	table = soup.find('table',id='detailed')
+
+	trs = table.findAll('tr')
+	content_dict = {}
+	for tr in trs:
+		tds = tr.findAll('td')
+		content_dict[tds[1].text.strip()] = tds[2].text.strip()
+	 
+	#print content_dict
+	result = {}
+	if content_dict.has_key('Accession number:'):
+		result['Accession number:'] = content_dict['Accession number:']
+	if content_dict.has_key('Title:'):
+		#print content_dict['Title:']
+		result['Title:'] = content_dict['Title:']
+	if content_dict.has_key('Authors:'):
+		p = re.compile('\d')
+		Authors = content_dict['Authors:'].replace('	','').replace('\n','').replace(' ','')
+		#print p.sub('',Authors)
+		result['Authors:'] = p.sub('',Authors)
+	if content_dict.has_key('Document type:'):
+		#print content_dict['Document type:']
+		result['Document type:'] = content_dict['Document type:']
+	if content_dict.has_key('Conference name:'):
+		#print content_dict['Conference name:']
+		result['Conference name:'] = content_dict['Conference name:']
+
+	return result

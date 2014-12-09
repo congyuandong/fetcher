@@ -66,7 +66,7 @@ function dwr_postei() {
 				// $('#btn_search').attr('disabled', false);
 				// $('#btn_search').text("Search");
 				runbar = 0;
-				document.getElementById("detail_load").innerHTML = '未检索到数据，可能由于网络请求超时造成，请重试';
+				document.getElementById("detail_load").innerHTML = '未检索到数据，您的文章还未被收了哦';
 			}
 		});
 

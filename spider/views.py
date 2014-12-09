@@ -19,7 +19,25 @@ def GetWebData(request):
 	if request.method == 'GET':
 		title = request.GET.get('title','')
 		if title:
-			context_dict['status'] = 1
-			context_dict['body'] = EIHacker.findByTitle(title)
+			body = EIHacker.webHTML(title)
+			if body == -1:
+				context_dict['status'] = 0
+			else:
+				context_dict['status'] = 1
+				context_dict['body'] = body
+
+	return HttpResponse(json.dumps(context_dict),content_type="application/json")
+
+def GetAPPData(request):
+	context_dict = {}
+	if request.method == 'GET':
+		title = request.GET.get('title','')
+		if title:
+			body = EIHacker.appHTML(title)
+			if body == -1:
+				context_dict['status'] = 0
+			else:
+				context_dict['status'] = 1
+				context_dict['result'] = body
 
 	return HttpResponse(json.dumps(context_dict),content_type="application/json")
